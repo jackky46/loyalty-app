@@ -74,19 +74,24 @@ export default function Employees({ employees: initialEmployees, locations }: Pr
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('Form submitted', formData);
         setLoading(true);
 
         if (editingEmployee) {
+            console.log('Updating employee', editingEmployee.id);
             router.put(`/admin/employees/${editingEmployee.id}`, {
                 location_id: formData.location_id || null,
                 password: formData.password || null,
             }, {
-                onSuccess: () => setShowModal(false),
+                onSuccess: () => { console.log('Update success'); setShowModal(false); },
+                onError: (errors) => console.log('Update error', errors),
                 onFinish: () => setLoading(false),
             });
         } else {
+            console.log('Creating employee', formData);
             router.post('/admin/employees', formData, {
-                onSuccess: () => setShowModal(false),
+                onSuccess: () => { console.log('Create success'); setShowModal(false); },
+                onError: (errors) => console.log('Create error', errors),
                 onFinish: () => setLoading(false),
             });
         }
@@ -188,8 +193,8 @@ export default function Employees({ employees: initialEmployees, locations }: Pr
                             <button
                                 onClick={() => toggleActive(emp.user.id, emp.user.is_active)}
                                 className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${emp.user.is_active
-                                        ? 'bg-orange-50 hover:bg-orange-100 text-orange-600'
-                                        : 'bg-green-50 hover:bg-green-100 text-green-600'
+                                    ? 'bg-orange-50 hover:bg-orange-100 text-orange-600'
+                                    : 'bg-green-50 hover:bg-green-100 text-green-600'
                                     }`}
                             >
                                 {emp.user.is_active ? 'Deactivate' : 'Activate'}
