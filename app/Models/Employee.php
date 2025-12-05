@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Employee extends Model
 {
+    protected static function booted(): void
+    {
+        static::creating(function ($employee) {
+            if (empty($employee->employee_code)) {
+                $employee->employee_code = 'EMP' . strtoupper(substr(uniqid(), -8));
+            }
+        });
+    }
+
     protected $fillable = [
         'user_id',
         'employee_code',
