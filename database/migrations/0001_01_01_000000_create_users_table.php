@@ -13,12 +13,22 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->enum('role', ['CUSTOMER', 'CASHIER', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'])->default('CUSTOMER');
             $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('email')->unique()->nullable();
+            $table->string('phone')->unique()->nullable();
+            $table->string('password'); // bcrypt hashed
+            $table->string('member_id')->unique(); // MXU-2024-00123
+            $table->text('qr_code_data'); // JSON string
+            $table->date('birth_date')->nullable(); // Birthday for special rewards
+            $table->boolean('email_verified')->default(false);
+            $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
+
+            $table->index('email');
+            $table->index('phone');
+            $table->index('member_id');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

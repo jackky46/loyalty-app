@@ -1,0 +1,83 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy Laravel to aaPanel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔑 Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
+
+      - name: 🚀 Deploy to Server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PATH: ${{ secrets.SERVER_PATH }}
+        run: |
+          # Add server to known hosts
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+
+          # Deploy script
+          ssh $SERVER_USER@$SERVER_HOST << 'ENDSSH'
+            set -e
+            
+            echo "🔄 Starting Laravel deployment..."
+            
+            # Navigate to project
+            cd /www/wwwroot/loyalty-app
+            
+            echo "📦 Pulling latest code..."
+            git fetch origin main
+            git reset --hard origin/main
+            
+            echo "📋 Installing PHP dependencies..."
+            composer install --no-dev --optimize-autoloader --no-interaction
+            
+            echo "📋 Installing Node dependencies..."
+            npm ci
+            
+            echo "🏗️ Building frontend assets..."
+            npm run build
+            
+            echo "🗄️ Running database migrations..."
+            php artisan migrate --force
+            
+            echo "🧹 Clearing all caches..."
+            php artisan cache:clear
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
+            
+            echo "⚡ Optimizing for production..."
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            
+            echo "🔧 Setting permissions..."
+            chown -R www:www /www/wwwroot/loyalty-app
+            chmod -R 755 /www/wwwroot/loyalty-app
+            chmod -R 775 storage bootstrap/cache
+            
+            echo "✅ Deployment complete!"
+          ENDSSH
+
+      - name: ✅ Success
+        if: success()
+        run: echo "🎉 Deployment successful!"
+
+      - name: ❌ Failed
+        if: failure()
+        run: |
+          echo "::error::Deployment failed!"
+          exit 1
