@@ -15,8 +15,8 @@ class User extends Authenticatable
     protected static function booted(): void
     {
         static::creating(function ($user) {
+            // Generate unique member_id for all users
             if (empty($user->member_id)) {
-                // Generate unique member_id for all users
                 $prefix = match($user->role) {
                     'ADMIN', 'SUPER_ADMIN' => 'ADM',
                     'MANAGER' => 'MGR',
@@ -24,6 +24,14 @@ class User extends Authenticatable
                     default => 'MBR',
                 };
                 $user->member_id = $prefix . strtoupper(substr(uniqid(), -8));
+            }
+            
+            // Generate qr_code_data if empty
+            if (empty($user->qr_code_data)) {
+                $user->qr_code_data = json_encode([
+                    'member_id' => $user->member_id,
+                    'type' => $user->role,
+                ]);
             }
         });
     }
