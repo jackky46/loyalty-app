@@ -45,7 +45,7 @@ jobs:
             composer install --no-dev --optimize-autoloader --no-interaction
             
             echo "📋 Installing Node dependencies..."
-            npm ci
+            npm ci --legacy-peer-deps
             
             echo "🏗️ Building frontend assets..."
             npm run build
