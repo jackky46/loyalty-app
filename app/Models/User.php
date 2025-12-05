@@ -12,6 +12,22 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    protected static function booted(): void
+    {
+        static::creating(function ($user) {
+            if (empty($user->member_id)) {
+                // Generate unique member_id for all users
+                $prefix = match($user->role) {
+                    'ADMIN', 'SUPER_ADMIN' => 'ADM',
+                    'MANAGER' => 'MGR',
+                    'CASHIER' => 'CSH',
+                    default => 'MBR',
+                };
+                $user->member_id = $prefix . strtoupper(substr(uniqid(), -8));
+            }
+        });
+    }
+
     protected $fillable = [
         'role',
         'name',
