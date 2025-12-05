@@ -28,8 +28,7 @@ interface Props {
     locations: Location[];
 }
 
-export default function Employees({ employees: initialEmployees, locations }: Props) {
-    const [employees, setEmployees] = useState(initialEmployees);
+export default function Employees({ employees, locations }: Props) {
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
@@ -74,24 +73,19 @@ export default function Employees({ employees: initialEmployees, locations }: Pr
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Form submitted', formData);
         setLoading(true);
 
         if (editingEmployee) {
-            console.log('Updating employee', editingEmployee.id);
             router.put(`/admin/employees/${editingEmployee.id}`, {
                 location_id: formData.location_id || null,
                 password: formData.password || null,
             }, {
-                onSuccess: () => { console.log('Update success'); setShowModal(false); },
-                onError: (errors) => console.log('Update error', errors),
+                onSuccess: () => setShowModal(false),
                 onFinish: () => setLoading(false),
             });
         } else {
-            console.log('Creating employee', formData);
             router.post('/admin/employees', formData, {
-                onSuccess: () => { console.log('Create success'); setShowModal(false); },
-                onError: (errors) => console.log('Create error', errors),
+                onSuccess: () => setShowModal(false),
                 onFinish: () => setLoading(false),
             });
         }

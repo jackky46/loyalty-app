@@ -63,8 +63,7 @@ class EmployeeController extends Controller
             return back()->with('success', 'Employee created successfully');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Employee creation failed: ' . $e->getMessage());
-            return back()->withErrors(['message' => 'Failed to create employee: ' . $e->getMessage()]);
+            return back()->withErrors(['message' => 'Failed to create employee']);
         }
     }
 
