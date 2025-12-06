@@ -39,6 +39,11 @@ class DashboardController extends Controller
 
         // Get announcement for cashiers from CMS
         $announcement = ContentBlock::getByKey('cashier_announcement');
+        
+        // Get unread notifications count
+        $unreadNotifications = $user->notifications()
+            ->where('is_read', false)
+            ->count();
 
         return Inertia::render('Cashier/Dashboard', [
             'user' => $user,
@@ -47,7 +52,7 @@ class DashboardController extends Controller
             'todayStats' => $todayStats,
             'recentTransactions' => $recentTransactions,
             'announcement' => $announcement,
+            'unreadNotifications' => $unreadNotifications,
         ]);
     }
 }
-

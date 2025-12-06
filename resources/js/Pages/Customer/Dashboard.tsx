@@ -1,6 +1,15 @@
 import CustomerLayout from '@/Layouts/CustomerLayout';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
+
+interface PopupData {
+    id: number;
+    title: string;
+    content: string;
+    image_url?: string;
+    action_label?: string;
+    action_url?: string;
+}
 
 interface Props {
     user: {
@@ -20,6 +29,7 @@ interface Props {
     unreadNotifications: number;
     recentNotifications: any[];
     content: Record<string, string>;
+    popup?: PopupData | null;
 }
 
 // Stamp Card Component
@@ -151,10 +161,29 @@ export default function Dashboard({
     unreadNotifications,
     recentNotifications,
     content = {},
+    popup,
 }: Props) {
     // State for real-time stamp updates
     const [stamps, setStamps] = useState(initialStamps);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+    // State for popup visibility
+    const [showPopup, setShowPopup] = useState(!!popup);
+
+    // Record popup view when popup is dismissed
+    const handleClosePopup = () => {
+        if (popup) {
+            // Record the view
+            fetch(`/customer/api/popup-view/${popup.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+            }).catch(console.error);
+        }
+        setShowPopup(false);
+    };
 
     // Polling for real-time stamp updates
     useEffect(() => {
@@ -213,6 +242,62 @@ export default function Dashboard({
             unreadNotifications={unreadNotifications}
             recentNotifications={recentNotifications}
         >
+            {/* Popup Modal */}
+            {showPopup && popup && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+                        {/* Close button */}
+                        <button
+                            onClick={handleClosePopup}
+                            className="absolute top-4 right-4 p-1 bg-white/90 rounded-full shadow-md hover:bg-white transition-all z-10"
+                        >
+                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        {/* Image */}
+                        {popup.image_url && (
+                            <div className="relative">
+                                <img
+                                    src={popup.image_url}
+                                    alt={popup.title}
+                                    className="w-full h-48 object-cover"
+                                />
+                            </div>
+                        )}
+
+                        {/* Content */}
+                        <div className="p-6">
+                            <h3 className="text-xl font-bold text-gray-800 mb-3">{popup.title}</h3>
+                            <div
+                                className="text-gray-600 text-sm mb-4"
+                                dangerouslySetInnerHTML={{ __html: popup.content }}
+                            />
+
+                            {/* Action Button */}
+                            <div className="flex gap-2">
+                                {popup.action_label && popup.action_url && (
+                                    <a
+                                        href={popup.action_url}
+                                        onClick={handleClosePopup}
+                                        className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg text-center transition-colors"
+                                    >
+                                        {popup.action_label}
+                                    </a>
+                                )}
+                                <button
+                                    onClick={handleClosePopup}
+                                    className={`${popup.action_label ? 'flex-1' : 'w-full'} bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg transition-colors`}
+                                >
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Promo Banner from CMS */}
             {content.promo_banner_text && (
                 <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl p-4 text-white shadow-lg animate-pulse">

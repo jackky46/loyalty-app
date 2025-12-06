@@ -88,6 +88,16 @@ Route::middleware(['auth', 'active', 'role:CUSTOMER'])
                 'total_stamps_earned' => $customer?->total_stamps_earned ?? 0,
             ]);
         })->name('api.stamps');
+        
+        // API for recording popup views
+        Route::post('/api/popup-view/{popup}', function (\App\Models\Popup $popup) {
+            \App\Models\PopupView::create([
+                'popup_id' => $popup->id,
+                'user_id' => auth()->id(),
+                'viewed_at' => now(),
+            ]);
+            return response()->json(['success' => true]);
+        })->name('api.popup-view');
     });
 
 /*
@@ -191,6 +201,11 @@ Route::middleware(['auth', 'active', 'role:CASHIER,MANAGER'])
         Route::get('/redeem', [RedeemController::class, 'index'])->name('redeem');
         Route::post('/redeem', [RedeemController::class, 'store'])->name('redeem.store');
         Route::get('/history', [\App\Http\Controllers\Cashier\HistoryController::class, 'index'])->name('history');
+        
+        // Notifications
+        Route::get('/notifications', [\App\Http\Controllers\Cashier\NotificationController::class, 'index'])->name('notifications');
+        Route::post('/notifications/{id}/read', [\App\Http\Controllers\Cashier\NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Cashier\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
     });
 
 /*

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\ContentBlock;
+use App\Models\Popup;
+use App\Models\PopupView;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -54,6 +56,42 @@ class DashboardController extends Controller
             ->get()
             ->mapWithKeys(fn($c) => [$c->key => $c->content]);
 
+        // Get active popup for this user
+        $popup = Popup::active()
+            ->where(function ($q) {
+                $q->whereNull('target_role')
+                    ->orWhere('target_role', 'CUSTOMER')
+                    ->orWhere('target_role', 'ALL');
+            })
+            ->orderBy('priority', 'desc')
+            ->get()
+            ->filter(function ($popup) use ($user) {
+                // Check based on frequency
+                if ($popup->frequency === 'ALWAYS') {
+                    return true;
+                }
+                
+                $lastView = PopupView::where('popup_id', $popup->id)
+                    ->where('user_id', $user->id)
+                    ->latest('viewed_at')
+                    ->first();
+                
+                if (!$lastView) {
+                    return true;
+                }
+                
+                if ($popup->frequency === 'ONCE') {
+                    return false;
+                }
+                
+                if ($popup->frequency === 'DAILY') {
+                    return $lastView->viewed_at->lt(now()->startOfDay());
+                }
+                
+                return true;
+            })
+            ->first();
+
         return Inertia::render('Customer/Dashboard', [
             'user' => $user,
             'customer' => $customer,
@@ -64,6 +102,14 @@ class DashboardController extends Controller
             'unreadNotifications' => $unreadNotifications,
             'recentNotifications' => $recentNotifications,
             'content' => $content,
+            'popup' => $popup ? [
+                'id' => $popup->id,
+                'title' => $popup->title,
+                'content' => $popup->content,
+                'image_url' => $popup->image_url,
+                'action_label' => $popup->action_label,
+                'action_url' => $popup->action_url,
+            ] : null,
         ]);
     }
 }

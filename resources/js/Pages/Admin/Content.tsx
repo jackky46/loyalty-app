@@ -1,5 +1,5 @@
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface ContentBlock {
     id: number;
@@ -42,6 +42,16 @@ export default function Content({ contents, categories, filters }: Props) {
         setEditingContent(null);
         setShowModal(true);
     };
+
+    // Ref for the contentEditable div
+    const contentEditableRef = useRef<HTMLDivElement>(null);
+
+    // Sync contentEditable content when modal opens or when editing
+    useEffect(() => {
+        if (showModal && contentEditableRef.current) {
+            contentEditableRef.current.innerHTML = data.content;
+        }
+    }, [showModal, editingContent]);
 
     const openEditModal = (content: ContentBlock) => {
         setEditingContent(content);
@@ -342,10 +352,10 @@ export default function Content({ contents, categories, filters }: Props) {
                                     >•</button>
                                 </div>
                                 <div
+                                    ref={contentEditableRef}
                                     contentEditable
                                     className="w-full min-h-[120px] px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white"
-                                    onInput={(e) => setData('content', (e.target as HTMLDivElement).innerHTML)}
-                                    dangerouslySetInnerHTML={{ __html: data.content }}
+                                    onBlur={(e) => setData('content', (e.target as HTMLDivElement).innerHTML)}
                                 />
                                 <p className="text-xs text-gray-500 mt-1">Gunakan toolbar untuk format teks (bold, italic, dll)</p>
                                 {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
