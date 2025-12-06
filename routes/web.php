@@ -40,10 +40,16 @@ Route::get('/', function () {
     ]);
 });
 
-// QR Login (guest only)
+// QR Login (guest only for page, but API can be accessed by anyone)
 Route::middleware('guest')->group(function () {
     Route::get('/qr-login', [\App\Http\Controllers\Auth\QRLoginController::class, 'showQRLogin'])->name('qr-login');
-    Route::post('/qr-login', [\App\Http\Controllers\Auth\QRLoginController::class, 'login'])->name('qr-login.post');
+});
+
+// QR Login API (no auth required for start-waiting and check-waiting)
+Route::prefix('api/qr-login')->group(function () {
+    Route::post('/start-waiting', [\App\Http\Controllers\Auth\QRLoginController::class, 'startWaiting']);
+    Route::get('/check-waiting', [\App\Http\Controllers\Auth\QRLoginController::class, 'checkWaiting']);
+    Route::post('/approve', [\App\Http\Controllers\Auth\QRLoginController::class, 'approveLogin']);
 });
 
 /*

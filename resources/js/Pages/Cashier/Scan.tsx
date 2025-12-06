@@ -237,6 +237,23 @@ export default function Scan({ locationId }: Props) {
                                             // Not JSON, use as-is
                                         }
 
+                                        // First, try to approve any waiting QR login
+                                        try {
+                                            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                                            await fetch('/api/qr-login/approve', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': csrfToken || '',
+                                                },
+                                                body: JSON.stringify({ member_id: memberId }),
+                                            });
+                                            // We don't care if this fails - it just means no one was waiting
+                                        } catch {
+                                            // Ignore - customer might not be in waiting mode
+                                        }
+
+                                        // Then do normal customer lookup
                                         const response = await fetch(`/api/customer/lookup?member_id=${memberId}`);
                                         const result = await response.json();
 
