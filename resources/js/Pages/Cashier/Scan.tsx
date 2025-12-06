@@ -26,15 +26,32 @@ export default function Scan({ locationId }: Props) {
         // Remove non-alphanumeric
         let value = input.toUpperCase().replace(/[^A-Z0-9]/g, '');
 
-        // Add dashes
-        if (value.length > 3) {
-            value = value.slice(0, 3) + '-' + value.slice(3);
+        // Detect format type
+        if (value.startsWith('MXUHCI')) {
+            // New format: MXU-HCI-YYYY-XXXXX
+            if (value.length > 3) {
+                value = value.slice(0, 3) + '-' + value.slice(3); // MXU-
+            }
+            if (value.length > 7) {
+                value = value.slice(0, 7) + '-' + value.slice(7); // MXU-HCI-
+            }
+            if (value.length > 12) {
+                value = value.slice(0, 12) + '-' + value.slice(12); // MXU-HCI-YYYY-
+            }
+            return value.slice(0, 18); // MXU-HCI-YYYY-XXXXX (18 chars)
+        } else if (value.startsWith('MXU')) {
+            // Old format: MXU-YYYY-XXXXX
+            if (value.length > 3) {
+                value = value.slice(0, 3) + '-' + value.slice(3);
+            }
+            if (value.length > 8) {
+                value = value.slice(0, 8) + '-' + value.slice(8);
+            }
+            return value.slice(0, 14);
+        } else {
+            // Other formats (MBR, ADM, CSH, etc) - no formatting
+            return value;
         }
-        if (value.length > 8) {
-            value = value.slice(0, 8) + '-' + value.slice(8, 13);
-        }
-
-        return value.slice(0, 14);
     };
 
     const handleManualLookup = async () => {
@@ -254,10 +271,10 @@ export default function Scan({ locationId }: Props) {
                                         value={manualMemberId}
                                         onChange={(e) => setManualMemberId(formatMemberId(e.target.value))}
                                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-lg"
-                                        placeholder="MXU-2024-00001"
-                                        maxLength={14}
+                                        placeholder="MXU-HCI-2024-00001"
+                                        maxLength={18}
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">Format: MXU-YYYY-XXXXX</p>
+                                    <p className="text-xs text-gray-500 mt-1">Format: MXU-HCI-YYYY-XXXXX atau MXU-YYYY-XXXXX</p>
                                 </div>
                                 <button
                                     onClick={handleManualLookup}
