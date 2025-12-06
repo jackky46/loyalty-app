@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -13,6 +14,23 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    /**
+     * Handle the incoming request.
+     */
+    public function handle(Request $request, \Closure $next): Response
+    {
+        $response = parent::handle($request, $next);
+
+        // Prevent iOS Safari from caching Inertia JSON responses
+        if ($request->header('X-Inertia')) {
+            $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            $response->headers->set('Pragma', 'no-cache');
+            $response->headers->set('Expires', '0');
+        }
+
+        return $response;
+    }
 
     /**
      * Determine the current asset version.
