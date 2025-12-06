@@ -11,9 +11,10 @@ interface Props {
         qr_code_data: string;
     };
     currentStamps: number;
+    content: Record<string, string>;
 }
 
-export default function QRCode({ user, currentStamps }: Props) {
+export default function QRCode({ user, currentStamps, content = {} }: Props) {
     const stampsToNextReward = 5 - (currentStamps % 5);
 
     return (
@@ -83,11 +84,15 @@ export default function QRCode({ user, currentStamps }: Props) {
                     </svg>
                     <div>
                         <p className="font-semibold text-gray-800 mb-1">Tips!</p>
-                        <ul className="text-sm text-gray-600 space-y-1">
-                            <li>• Pastikan kasir scan QR dengan benar</li>
-                            <li>• Setiap pembelian min. Rp 15.000 = 1 stamp</li>
-                            <li>• Cek stamp langsung setelah transaksi</li>
-                        </ul>
+                        {content.qr_tips ? (
+                            <div className="text-sm text-gray-600" dangerouslySetInnerHTML={{ __html: content.qr_tips }} />
+                        ) : (
+                            <ul className="text-sm text-gray-600 space-y-1">
+                                <li>• Pastikan kasir scan QR dengan benar</li>
+                                <li>• Setiap pembelian min. Rp 15.000 = 1 stamp</li>
+                                <li>• Cek stamp langsung setelah transaksi</li>
+                            </ul>
+                        )}
                     </div>
                 </div>
             </div>

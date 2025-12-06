@@ -20,9 +20,10 @@ interface Props {
     } | null;
     birthdayRewardStamps: number;
     birthdayRewardClaimed: boolean;
+    content: Record<string, string>;
 }
 
-export default function Profile({ user, customer, birthdayRewardStamps, birthdayRewardClaimed }: Props) {
+export default function Profile({ user, customer, birthdayRewardStamps, birthdayRewardClaimed, content = {} }: Props) {
     const memberSince = new Date(user.created_at).toLocaleDateString('id-ID', {
         year: 'numeric',
         month: 'long',

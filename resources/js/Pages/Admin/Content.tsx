@@ -271,6 +271,10 @@ export default function Content({ contents, categories, filters }: Props) {
                                 <p className="text-xs text-gray-500">Info di kartu stamp (kategori: home)</p>
                             </div>
                             <div className="bg-white p-2 rounded border">
+                                <code className="text-blue-600">qr_tips</code>
+                                <p className="text-xs text-gray-500">Tips di halaman QR Code (kategori: qr)</p>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
                                 <code className="text-blue-600">cashier_announcement</code>
                                 <p className="text-xs text-gray-500">Pengumuman di dashboard kasir (kategori: cashier)</p>
                             </div>
