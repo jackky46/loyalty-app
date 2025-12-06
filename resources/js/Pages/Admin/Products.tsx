@@ -83,47 +83,62 @@ export default function Products({ products }: Props) {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        const submitData = new FormData();
-        submitData.append('name', formData.name);
-        submitData.append('price', formData.price);
-        submitData.append('category', formData.category);
-        submitData.append('description', formData.description);
-        submitData.append('is_available', formData.is_available ? '1' : '0');
-        submitData.append('max_voucher_price', formData.max_voucher_price);
-        if (imageFile) {
-            submitData.append('image', imageFile);
-        }
+        const submitData: any = {
+            name: formData.name,
+            price: formData.price,
+            category: formData.category,
+            description: formData.description,
+            is_available: formData.is_available ? '1' : '0',
+            max_voucher_price: formData.max_voucher_price,
+        };
 
-        try {
-            const url = editingProduct ? `/admin/products/${editingProduct.id}` : '/admin/products';
-            const method = editingProduct ? 'POST' : 'POST'; // Use POST for both with _method override
+        // For file upload, we need to use FormData
+        if (imageFile) {
+            const formDataObj = new FormData();
+            Object.keys(submitData).forEach(key => {
+                formDataObj.append(key, submitData[key]);
+            });
+            formDataObj.append('image', imageFile);
 
             if (editingProduct) {
-                submitData.append('_method', 'PUT');
+                formDataObj.append('_method', 'PUT');
+                router.post(`/admin/products/${editingProduct.id}`, formDataObj, {
+                    forceFormData: true,
+                    onSuccess: () => {
+                        setShowModal(false);
+                        setImageFile(null);
+                        setImagePreview(null);
+                    },
+                    onFinish: () => setLoading(false),
+                });
+            } else {
+                router.post('/admin/products', formDataObj, {
+                    forceFormData: true,
+                    onSuccess: () => {
+                        setShowModal(false);
+                        setImageFile(null);
+                        setImagePreview(null);
+                    },
+                    onFinish: () => setLoading(false),
+                });
             }
-
-            const response = await fetch(url, {
-                method: 'POST',
-                body: submitData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-            });
-
-            if (response.ok) {
-                setShowModal(false);
-                setImageFile(null);
-                setImagePreview(null);
-                router.reload({ only: ['products'] });
+        } else {
+            // No file upload - use regular object
+            if (editingProduct) {
+                router.put(`/admin/products/${editingProduct.id}`, submitData, {
+                    onSuccess: () => setShowModal(false),
+                    onFinish: () => setLoading(false),
+                });
+            } else {
+                router.post('/admin/products', submitData, {
+                    onSuccess: () => setShowModal(false),
+                    onFinish: () => setLoading(false),
+                });
             }
-        } catch (err) {
-            console.error('Submit failed:', err);
-        } finally {
-            setLoading(false);
         }
     };
 
