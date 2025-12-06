@@ -17,8 +17,7 @@ interface Props {
     products: Product[];
 }
 
-export default function Products({ products: initialProducts }: Props) {
-    const [products, setProducts] = useState(initialProducts);
+export default function Products({ products }: Props) {
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);

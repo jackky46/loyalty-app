@@ -50,8 +50,7 @@ function LocationMarker({ position, setPosition }: {
     return position ? <Marker position={position} icon={defaultIcon} /> : null;
 }
 
-export default function Locations({ locations: initialLocations }: Props) {
-    const [locations, setLocations] = useState(initialLocations);
+export default function Locations({ locations }: Props) {
     const [showModal, setShowModal] = useState(false);
     const [editingLocation, setEditingLocation] = useState<Location | null>(null);
     const [loading, setLoading] = useState(false);
@@ -112,9 +111,17 @@ export default function Locations({ locations: initialLocations }: Props) {
         }
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = (id: number, employeesCount?: number) => {
+        if (employeesCount && employeesCount > 0) {
+            alert(`Tidak bisa menghapus lokasi ini karena masih ada ${employeesCount} karyawan yang di-assign. Pindahkan karyawan terlebih dahulu.`);
+            return;
+        }
         if (!confirm('Delete this location?')) return;
-        router.delete(`/admin/locations/${id}`);
+        router.delete(`/admin/locations/${id}`, {
+            onError: (errors: any) => {
+                alert(errors.message || 'Gagal menghapus lokasi');
+            }
+        });
     };
 
     const handleMapPositionChange = (pos: [number, number]) => {
@@ -195,7 +202,7 @@ export default function Locations({ locations: initialLocations }: Props) {
                                 <span>Edit</span>
                             </button>
                             <button
-                                onClick={() => handleDelete(loc.id)}
+                                onClick={() => handleDelete(loc.id, loc.employees_count)}
                                 className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-1"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -22,8 +22,7 @@ interface Props {
     popups: Popup[];
 }
 
-export default function Popups({ popups: initialPopups }: Props) {
-    const [popups, setPopups] = useState(initialPopups);
+export default function Popups({ popups }: Props) {
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
