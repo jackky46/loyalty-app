@@ -7,15 +7,8 @@ import { createRoot } from 'react-dom/client';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
-// Handle 419 CSRF error globally - reload only once to get fresh token
-let hasReloadedFor419 = false;
-router.on('invalid', (event) => {
-    if (event.detail.response.status === 419 && !hasReloadedFor419) {
-        event.preventDefault();
-        hasReloadedFor419 = true;
-        window.location.reload();
-    }
-});
+// Note: 419 CSRF errors will show "Page Expired" - user must manually refresh
+// Auto-reload was removed as it caused loops on iOS Safari
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
