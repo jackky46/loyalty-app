@@ -32,14 +32,22 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email' => 'nullable|string|lowercase|email|max:255|unique:'.User::class,
+            'phone' => 'nullable|string|max:20|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
+
+        // Require either email or phone
+        if (empty($request->email) && empty($request->phone)) {
+            return back()->withErrors(['email' => 'Email atau nomor HP harus diisi']);
+        }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
             'password' => Hash::make($request->password),
+            'role' => 'CUSTOMER',
         ]);
 
         event(new Registered($user));
