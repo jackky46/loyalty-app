@@ -40,6 +40,12 @@ Route::get('/', function () {
     ]);
 });
 
+// QR Login (guest only)
+Route::middleware('guest')->group(function () {
+    Route::get('/qr-login', [\App\Http\Controllers\Auth\QRLoginController::class, 'showQRLogin'])->name('qr-login');
+    Route::post('/qr-login', [\App\Http\Controllers\Auth\QRLoginController::class, 'login'])->name('qr-login.post');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Customer Routes
