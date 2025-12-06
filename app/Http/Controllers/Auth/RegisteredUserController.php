@@ -50,6 +50,15 @@ class RegisteredUserController extends Controller
             'role' => 'CUSTOMER',
         ]);
 
+        // Create Customer record (required for stamp system)
+        \App\Models\Customer::create([
+            'user_id' => $user->id,
+            'current_stamps' => 0,
+            'total_stamps_earned' => 0,
+            'total_stamps_used' => 0,
+            'member_since' => now(),
+        ]);
+
         event(new Registered($user));
 
         // Redirect to login with success message (like old app)
