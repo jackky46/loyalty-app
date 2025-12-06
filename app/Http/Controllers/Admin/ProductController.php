@@ -50,7 +50,7 @@ class ProductController extends Controller
             'image_path' => $imagePath,
         ]);
 
-        return response()->json(['success' => true]);
+        return back()->with('success', 'Product created successfully');
     }
 
     public function update(Request $request, Product $product)
@@ -84,7 +84,7 @@ class ProductController extends Controller
             'image_path' => $imagePath,
         ]);
 
-        return response()->json(['success' => true]);
+        return back()->with('success', 'Product updated successfully');
     }
 
     public function destroy(Product $product)
