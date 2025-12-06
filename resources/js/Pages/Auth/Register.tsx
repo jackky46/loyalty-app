@@ -120,6 +120,7 @@ export default function Register() {
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                 placeholder="Minimal 6 karakter"
                                 disabled={processing}
+                                autoComplete="off"
                                 required
                             />
                         </div>
@@ -136,6 +137,7 @@ export default function Register() {
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                 placeholder="Ulangi password"
                                 disabled={processing}
+                                autoComplete="off"
                                 required
                             />
                         </div>
