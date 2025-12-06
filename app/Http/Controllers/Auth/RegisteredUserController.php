@@ -52,8 +52,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        // Redirect to login with success message (like old app)
+        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
     }
 }
