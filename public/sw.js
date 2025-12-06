@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mixue-loyalty-v1';
+const CACHE_NAME = 'mixue-loyalty-v2';
 
 // Files to cache
 const urlsToCache = [
@@ -27,6 +27,27 @@ self.addEventListener('fetch', (event) => {
 
     // Skip API requests
     if (event.request.url.includes('/api/')) return;
+
+    // Skip navigation requests (HTML pages) - let browser handle these
+    // This prevents iOS caching issues with Inertia
+    if (event.request.mode === 'navigate') return;
+
+    // Skip requests with X-Inertia header
+    if (event.request.headers.get('X-Inertia')) return;
+
+    // Only cache static assets (images, css, js, icons)
+    const url = new URL(event.request.url);
+    const isStaticAsset =
+        url.pathname.startsWith('/build/') ||
+        url.pathname.startsWith('/icons/') ||
+        url.pathname.endsWith('.css') ||
+        url.pathname.endsWith('.js') ||
+        url.pathname.endsWith('.png') ||
+        url.pathname.endsWith('.jpg') ||
+        url.pathname.endsWith('.ico') ||
+        url.pathname === '/manifest.json';
+
+    if (!isStaticAsset) return;
 
     event.respondWith(
         caches.match(event.request)
