@@ -259,6 +259,22 @@ export default function Content({ contents, categories, filters }: Props) {
                             <li>• <strong>Kategori</strong>: Untuk mengelompokkan content berdasarkan halaman</li>
                             <li>• Content yang dinonaktifkan tidak akan tampil di customer</li>
                         </ul>
+
+                        <h4 className="font-semibold text-gray-800 mt-4 mb-2">📋 Key yang Digunakan di Customer App:</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                            <div className="bg-white p-2 rounded border">
+                                <code className="text-blue-600">promo_banner_text</code>
+                                <p className="text-xs text-gray-500">Banner promo di dashboard (kategori: home/promo)</p>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                                <code className="text-blue-600">home_stamp_info</code>
+                                <p className="text-xs text-gray-500">Info di kartu stamp (kategori: home)</p>
+                            </div>
+                            <div className="bg-white p-2 rounded border">
+                                <code className="text-blue-600">cashier_announcement</code>
+                                <p className="text-xs text-gray-500">Pengumuman di dashboard kasir (kategori: cashier)</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
