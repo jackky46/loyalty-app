@@ -71,6 +71,16 @@ export default function Customers({ customers }: Props) {
         });
     };
 
+    const handleDelete = (customerId: number) => {
+        if (!confirm('Hapus customer ini? Data tidak bisa dikembalikan.')) return;
+
+        router.delete(`/admin/customers/${customerId}`, {
+            onError: (errors: any) => {
+                alert(errors.message || 'Gagal menghapus customer');
+            }
+        });
+    };
+
     return (
         <AdminLayout title="Customer Management">
             {/* Search */}
@@ -159,6 +169,15 @@ export default function Customers({ customers }: Props) {
                             >
                                 {customer.user.is_active ? 'Deactivate' : 'Activate'}
                             </button>
+                            <button
+                                onClick={() => handleDelete(customer.id)}
+                                className="bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 rounded-lg transition-colors"
+                                title="Delete"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 ))}
@@ -228,6 +247,12 @@ export default function Customers({ customers }: Props) {
                                             className="inline-flex items-center px-3 py-1 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-lg text-sm font-medium transition-colors"
                                         >
                                             Adjust Stamps
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(customer.id)}
+                                            className="inline-flex items-center px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-medium transition-colors"
+                                        >
+                                            Delete
                                         </button>
                                     </td>
                                 </tr>

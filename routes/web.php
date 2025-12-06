@@ -104,6 +104,7 @@ Route::middleware(['auth', 'active', 'role:ADMIN,SUPER_ADMIN'])
         Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers');
         Route::post('/customers/adjust-stamp', [AdminCustomerController::class, 'adjustStamp'])->name('customers.adjustStamp');
         Route::post('/customers/toggle-active', [AdminCustomerController::class, 'toggleActive'])->name('customers.toggleActive');
+        Route::delete('/customers/{customer}', [AdminCustomerController::class, 'destroy'])->name('customers.destroy');
         
         // Locations
         Route::get('/locations', [AdminLocationController::class, 'index'])->name('locations');

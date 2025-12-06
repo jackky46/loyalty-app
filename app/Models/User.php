@@ -17,20 +17,42 @@ class User extends Authenticatable
         static::creating(function ($user) {
             // Generate unique member_id for all users
             if (empty($user->member_id)) {
-                $prefix = match($user->role) {
-                    'ADMIN', 'SUPER_ADMIN' => 'ADM',
-                    'MANAGER' => 'MGR',
-                    'CASHIER' => 'CSH',
-                    default => 'MBR',
-                };
-                $user->member_id = $prefix . strtoupper(substr(uniqid(), -8));
+                if ($user->role === 'CUSTOMER' || empty($user->role)) {
+                    // Customer format: MXU-HCI-YYYY-XXXXX
+                    $year = date('Y');
+                    $prefix = "MXU-HCI-{$year}-";
+                    
+                    // Find last member_id with same prefix this year
+                    $lastMember = User::where('member_id', 'like', $prefix . '%')
+                        ->orderBy('member_id', 'desc')
+                        ->first();
+                    
+                    if ($lastMember) {
+                        // Extract last number and increment
+                        $lastNumber = (int) substr($lastMember->member_id, -5);
+                        $newNumber = $lastNumber + 1;
+                    } else {
+                        $newNumber = 1;
+                    }
+                    
+                    $user->member_id = $prefix . str_pad($newNumber, 5, '0', STR_PAD_LEFT);
+                } else {
+                    // Staff format: PREFIX + random
+                    $prefix = match($user->role) {
+                        'ADMIN', 'SUPER_ADMIN' => 'ADM',
+                        'MANAGER' => 'MGR',
+                        'CASHIER' => 'CSH',
+                        default => 'STF',
+                    };
+                    $user->member_id = $prefix . strtoupper(substr(uniqid(), -8));
+                }
             }
             
             // Generate qr_code_data if empty
             if (empty($user->qr_code_data)) {
                 $user->qr_code_data = json_encode([
                     'member_id' => $user->member_id,
-                    'type' => $user->role,
+                    'type' => $user->role ?? 'CUSTOMER',
                 ]);
             }
         });

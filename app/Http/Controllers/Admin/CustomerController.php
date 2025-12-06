@@ -91,4 +91,26 @@ class CustomerController extends Controller
 
         return back()->with('success', 'Customer status updated');
     }
+
+    public function destroy(Customer $customer)
+    {
+        DB::beginTransaction();
+        try {
+            $user = $customer->user;
+            
+            // Delete customer first (has foreign key to user)
+            $customer->delete();
+            
+            // Then delete user
+            if ($user) {
+                $user->delete();
+            }
+            
+            DB::commit();
+            return back()->with('success', 'Customer deleted successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['message' => 'Failed to delete customer: ' . $e->getMessage()]);
+        }
+    }
 }
